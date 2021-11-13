@@ -1,5 +1,7 @@
 # Curv Playground
 
+![Picture of the playground](./images/pic.png)
+
 Write Curv code in your browser! The playground will send your code to the server
 where its processed by Curv and returns a model to be viewed.
 
