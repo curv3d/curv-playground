@@ -16,6 +16,8 @@ Visit https://playground.curv3d.org !
 
 Make sure nodejs, npm and Curv is installed on the server. That should be all!
 
+Run `npm install` to install the dependencies and then `node server.js` to start.
+
 curv-playground will listen on port 9000 on localhost. This can be easily changed
 in server.js.
 

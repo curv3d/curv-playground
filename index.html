@@ -66,8 +66,7 @@
   </div>
 
   <div class="actions-buttons">
-    <button onclick="render3D()">3d</button>
-    <button onclick="render2D()">2d</button>
+    <button onclick="render3D()">Render</button>
   </div>
 </div>
 
@@ -136,12 +135,11 @@
     .then((ab) => {
       loader.parse(ab, undefined, function ( gltf ) {
         for( var i = scene.children.length - 1; i >= 0; i--) {
-          obj = scene.children[i];
+          var obj = scene.children[i];
           scene.remove(obj);
         }
       	gltf.scene.children[0].material.wireframe = true;
       	scene.add( gltf.scene );
-      	console.log(gltf);
         fitCameraToObject( camera, gltf.scene.children[0], 26, controls );
       }, function ( error ) {
        errorsEl.innerText = error;
@@ -157,7 +155,6 @@
       });
     });
   }
-  window.render2D = function() { alert("Not implemented"); }
     
   const renderer = new THREE.WebGLRenderer({ alpha: true, physicallyCorrectLights: true, gammaOutput: true });
   

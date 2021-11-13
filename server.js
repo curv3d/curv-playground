@@ -8,7 +8,7 @@ app.use(express.static('.'));
 app.use(express.text());
 
 app.post('/render-3d', (req, res) => {
-  const code = req.body;
+  const code = req.body + " >> extrude 0.00000001 >> set_bbox [640, 640, 640]";
   
   const child = spawn(
     'curv',
@@ -17,7 +17,6 @@ app.post('/render-3d', (req, res) => {
   child.stdin.write(code);
   child.stdin.end();
 
-  
   let statusSet = false;
   let contentTypeSet = false;
   let isSuccess = false;
