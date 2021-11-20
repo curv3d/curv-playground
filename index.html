@@ -79,7 +79,7 @@
 </div>
 
 <div class="render_container">
-  <img id="render" src="" width="100%"/>
+  <img alt="" id="render" src="" width="100%"/>
 </div>
 
 <script type="module">
@@ -165,8 +165,9 @@
     rendererContainer.style.width = window.innerWidth + 'px';
     rendererContainer.style.height = `calc(${renderHeight}px - 13mm)`;
 
-    renderer.width = rendererContainer.offsetWidth;
-    //renderer.height = rendererContainer.offsetHeight;
+    const ratio = renderer.naturalHeight / renderer.naturalWidth;
+    renderer.style.width = (renderer.naturalWidth / ratio) + 'px';
+    renderer.style.height = '100%';
 
     rendererContainer.style.width = window.innerWidth + 'px';
     rendererContainer.style.height = `calc(${renderHeight}px - 13mm)`;
