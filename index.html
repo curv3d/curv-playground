@@ -139,6 +139,7 @@
         const f = new FileReader();
         f.onload = function(e) {
           document.getElementById('render').src = e.target.result;
+          onWindowResize();
         };
         f.readAsDataURL(b);
     })
@@ -165,9 +166,11 @@
     rendererContainer.style.width = window.innerWidth + 'px';
     rendererContainer.style.height = `calc(${renderHeight}px - 13mm)`;
 
-    const ratio = renderer.naturalHeight / renderer.naturalWidth;
-    renderer.style.width = (renderer.naturalWidth / ratio) + 'px';
-    renderer.style.height = '100%';
+    const ratio = rendererContainer.offsetHeight / renderer.naturalHeight;
+    renderer.style.height = rendererContainer.offsetHeight + 'px';
+    renderer.style.width = (renderer.naturalWidth * ratio) + 'px';
+    renderer.width = (renderer.naturalWidth * ratio);
+    renderer.height = (rendererContainer.offsetHeight);
 
     rendererContainer.style.width = window.innerWidth + 'px';
     rendererContainer.style.height = `calc(${renderHeight}px - 13mm)`;
