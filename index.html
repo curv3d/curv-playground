@@ -55,6 +55,10 @@
   .hide {
     display: none;
   }
+
+  .render_container {
+    text-align: center;
+  }
 </style>
 
 <div class="editor"></div>
@@ -74,18 +78,17 @@
   <div class="errors"></div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.121.0/build/three.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.121.0/examples/js/controls/OrbitControls.js"></script>
+<div class="render_container">
+  <img id="render" src="" width="100%"/>
+</div>
+
 <script type="module">
   import { CodeJar } from 'https://medv.io/codejar/codejar.js';
   import { withLineNumbers } from 'https://medv.io/codejar/linenumbers.js';
   
-  import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.121.0/examples/jsm/loaders/GLTFLoader.js";
-	const loader = new GLTFLoader();
-  const scene = new THREE.Scene();
-  let camera;
-  
   var editor = document.querySelector('.editor');
+  var rendererContainer = document.querySelector('.render_container');
+  var renderer = document.querySelector('#render');
   var errorsOuterEl = document.querySelector('.errors_outer');
   var errorsEl = document.querySelector('.errors');
   
@@ -126,25 +129,18 @@
   window.render3D = function() {
     const text = editor.innerText;
     errorsOuterEl.classList.add('hide');
-    fetch('/render-3d', {
+    fetch('/render', {
       method: 'POST',
       body: text
     })
     .then((r) => r.ok ? r : Promise.reject(r))
-    .then((r) => r.arrayBuffer())
-    .then((ab) => {
-      loader.parse(ab, undefined, function ( gltf ) {
-        for( var i = scene.children.length - 1; i >= 0; i--) {
-          var obj = scene.children[i];
-          scene.remove(obj);
-        }
-      	gltf.scene.children[0].material.wireframe = true;
-      	scene.add( gltf.scene );
-        fitCameraToObject( camera, gltf.scene.children[0], 26, controls );
-      }, function ( error ) {
-       errorsEl.innerText = error;
-       errorsOuterEl.classList.remove('hide');
-      });
+    .then((r) => r.blob())
+    .then((b) => {
+        const f = new FileReader();
+        f.onload = function(e) {
+          document.getElementById('render').src = e.target.result;
+        };
+        f.readAsDataURL(b);
     })
     .catch((r) => {
       r
@@ -156,86 +152,25 @@
     });
   }
     
-  const renderer = new THREE.WebGLRenderer({ alpha: true, physicallyCorrectLights: true, gammaOutput: true });
-  
-  const renderHeight = window.innerHeight - editor.offsetHeight;
-  const renderWidth = window.innerWidth;
-
-  errorsEl.style.width = window.innerWidth + 'px';
-  errorsEl.style.height = `calc(${renderHeight}px - 13mm)`;
-  
-  camera = new THREE.PerspectiveCamera(75, renderWidth / renderHeight, 0.1, 1000);
-  renderer.setSize(renderWidth, renderHeight);
-  document.body.appendChild(renderer.domElement);
-
-  const light4 = new THREE.AmbientLight('#00ffff', 200);
-  camera.add( light4 );
-  const light = new THREE.DirectionalLight('#00ffff', 400);
-  light.position.set(0.5, 0, 0.866); // ~60º
-  camera.add( light );
-
-  var controls = new THREE.OrbitControls(camera, renderer.domElement);
-  controls.target.set(0, 100, 0);
-  controls.update();
 
   window.addEventListener('resize', onWindowResize, false);
   
   function onWindowResize() {
     const renderHeight = window.innerHeight - editor.offsetHeight;
     const renderWidth = window.innerWidth;
-    
-    camera.aspect = renderWidth / renderHeight;
-    camera.updateProjectionMatrix();
-    
-    renderer.setSize( renderWidth, renderHeight);
-  }
+
+    errorsEl.style.width = window.innerWidth;
+    errorsEl.style.height = `calc(${renderHeight}px - 13mm)`;
   
-  function animate() {
-    requestAnimationFrame( animate );
-    renderer.render( scene, camera );
+    rendererContainer.style.width = window.innerWidth + 'px';
+    rendererContainer.style.height = `calc(${renderHeight}px - 13mm)`;
+
+    renderer.width = rendererContainer.offsetWidth;
+    //renderer.height = rendererContainer.offsetHeight;
+
+    rendererContainer.style.width = window.innerWidth + 'px';
+    rendererContainer.style.height = `calc(${renderHeight}px - 13mm)`;
   }
-  animate();
 
-  var fitCameraToObject = function ( camera, object, offset, controls ) {
-
-    offset = offset || 1.25;
-
-    const boundingBox = new THREE.Box3();
-
-    // get bounding box of object - this will be used to setup controls and camera
-    boundingBox.setFromObject( object );
-
-    const center = boundingBox.getCenter();
-
-    const size = boundingBox.getSize();
-
-    // get the max side of the bounding box (fits to width OR height as needed )
-    const maxDim = Math.max( size.x, size.y, size.z );
-    const fov = camera.fov * ( Math.PI / 180 );
-    let cameraZ = Math.abs( maxDim / 4 * Math.tan( fov * 2 ) );
-
-    cameraZ *= offset; // zoom out a little so that objects don't fill the screen
-
-    camera.position.z = cameraZ;
-
-    const minZ = boundingBox.min.z;
-    const cameraToFarEdge = ( minZ < 0 ) ? -minZ + cameraZ : cameraZ - minZ;
-
-    camera.far = cameraToFarEdge * 3;
-    camera.updateProjectionMatrix();
-
-    if ( controls ) {
-
-      // set camera to rotate around center of loaded object
-      controls.target = center;
-
-      // prevent camera from zooming out far enough to create far plane cutoff
-      controls.maxDistance = cameraToFarEdge * 2;
-
-      controls.saveState();
-
-    } else {
-        camera.lookAt( center )
-    }
-   };
+  onWindowResize();
 </script>
