@@ -101,18 +101,20 @@
   );
 
   jar.updateCode(`let
-  circle d =
-    let
-      r = d / 2;
-    in
-      make_shape {
-        dist[x,y,z,t] = mag[x,y] - r;
-        colour [x,y,z,t] = let c = mag[x,y] - r; in [c, c, c];
-        bbox = [[-r,-r,0],[r,r,0]];
-        is_2d = true;
-      };
+circle d = let
+  r = d / 2;
+  in
+  make_shape {
+    dist[x,y,z,t] = mag[x,y] - r;
+    colour [x,y,z,t] = let
+      c = mag[x,y] - r;
+      in
+      [c, c, c];
+    bbox = [[-r,-r,0],[r,r,0]];
+    is_2d = true;
+  };
 in
-  circle 1
+circle 1
   `);
 
   const anchor = document.createElement('a');
