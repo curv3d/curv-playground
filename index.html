@@ -100,6 +100,21 @@
     }
   );
 
+  jar.updateCode(`let
+  circle d =
+    let
+      r = d / 2;
+    in
+      make_shape {
+        dist[x,y,z,t] = mag[x,y] - r;
+        colour [x,y,z,t] = let c = mag[x,y] - r; in [c, c, c];
+        bbox = [[-r,-r,0],[r,r,0]];
+        is_2d = true;
+      };
+in
+  circle 1
+  `);
+
   const anchor = document.createElement('a');
   window.save = async function() {
     const message = editor.innerText;
@@ -139,7 +154,7 @@
         const f = new FileReader();
         f.onload = function(e) {
           document.getElementById('render').src = e.target.result;
-          onWindowResize();
+          setTimeout(() => onWindowResize());
         };
         f.readAsDataURL(b);
     })
@@ -167,8 +182,6 @@
     rendererContainer.style.height = `calc(${renderHeight}px - 13mm)`;
 
     const ratio = rendererContainer.offsetHeight / renderer.naturalHeight;
-    renderer.style.height = rendererContainer.offsetHeight + 'px';
-    renderer.style.width = (renderer.naturalWidth * ratio) + 'px';
     renderer.width = (renderer.naturalWidth * ratio);
     renderer.height = (rendererContainer.offsetHeight);
 
