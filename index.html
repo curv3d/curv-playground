@@ -80,7 +80,7 @@
 </div>
 
 <div class="render_container">
-  <img alt="" id="render" src="" width="100%"/>
+  <img alt="" class="hide" id="render" src="" width="100%"/>
 </div>
 
 <script type="module">
@@ -156,10 +156,11 @@ circle 1
     .then((b) => {
         const f = new FileReader();
         f.onload = function(e) {
-          document.getElementById('render').src = e.target.result;
+          renderer.src = e.target.result;
           setTimeout(() => onWindowResize());
         };
         f.readAsDataURL(b);
+        renderer.classList.remove('hide');
     })
     .catch((r) => {
       r
